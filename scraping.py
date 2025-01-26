@@ -1,8 +1,3 @@
-## In this file we collected data for historical stock price(closing price,low,high,opening and volume with data)
-# and Gold price from yahoo using web scraping(selenium).
-## we made two classes that is Goldscapper and Stockscrapper and stored the scrapped
-# data in pandas dataframe which we use in our main.py file.
-
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -34,14 +29,12 @@ class StockScraper:
             try:
                 self.start_driver()
 
-                # Wait for the table to load
                 table = WebDriverWait(self.driver, self.wait_time).until(
                     EC.presence_of_element_located(
                         (By.XPATH, '//*[@id="nimbus-app"]/section/section/section/article/div[1]/div[3]/table'))
                 )
                 rows = table.find_elements(By.TAG_NAME, "tr")
 
-                # Extract data
                 for row in rows:
                     columns = row.find_elements(By.TAG_NAME, "td")
                     if columns:
@@ -69,7 +62,6 @@ class StockScraper:
                         else:
                             break
 
-                # If data was successfully scraped, exit the loop
                 if self.data:
                     break
 
@@ -79,7 +71,6 @@ class StockScraper:
                 time.sleep(2)  # Wait before retrying
 
             finally:
-                # to ensure the driver quits even if an error occurs
                 self.driver.quit()
 
     def get_data(self):
@@ -88,8 +79,6 @@ class StockScraper:
 
         stock_df = pd.DataFrame(self.data)
         stock_df = stock_df.sort_values("date").reset_index(drop=True)
-
-        # Calculation of 7-day and 14-day moving averages)
         stock_df['7_day_avg'] = stock_df['close'].rolling(window=7).mean()
         stock_df['14_day_avg'] = stock_df['close'].rolling(window=14).mean()
 
@@ -118,14 +107,11 @@ class GoldScraper:
             try:
                 self.start_driver()
 
-                # Wait for the table to load
                 table = WebDriverWait(self.driver, self.wait_time).until(
                     EC.presence_of_element_located(
                         (By.XPATH, '//*[@id="nimbus-app"]/section/section/section/article/div[1]/div[3]/table'))
                 )
                 rows = table.find_elements(By.TAG_NAME, "tr")
-
-                # Extract data
                 for row in rows:
                     cells = row.find_elements(By.TAG_NAME, "td")
                     if len(cells) >= 5:
@@ -143,8 +129,6 @@ class GoldScraper:
                             })
                         else:
                             break
-
-                # If data was successfully scraped, exit the loop
                 if self.data:
                     break
 
@@ -154,7 +138,6 @@ class GoldScraper:
                 time.sleep(2)  # Wait before retrying
 
             finally:
-                # Ensure the driver quits even if an error occurs
                 self.driver.quit()
 
     def get_data(self):
